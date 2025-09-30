@@ -2,7 +2,7 @@ use quote::quote;
 use syn::{parse_macro_input, Fields, ItemStruct, Type};
 
 #[proc_macro_attribute]
-pub fn ports(_attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn module(_attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(item as ItemStruct);
     let struct_name = input.ident.clone();
     let vis = input.vis;
@@ -37,6 +37,7 @@ pub fn ports(_attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> p
 
     let expanded = quote! {
         #(#attrs)*
+        #[derive(Default)]
         #vis struct #struct_name #generics
         #where_clause
         {

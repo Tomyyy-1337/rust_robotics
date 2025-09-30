@@ -38,6 +38,7 @@ impl ThreadContainer {
             }
         )
     }
+    const SPIN_TIME: Duration = Duration::ZERO;
 
     pub fn run(mut self)
     where {
@@ -47,14 +48,22 @@ impl ThreadContainer {
             }
             loop {
                 let next_run = self.task_queue.peek().unwrap().next_run;
-                let now = Instant::now();
-                if next_run > now {
-                    sleep(next_run - now);
+                let start = Instant::now();
+                if next_run > start {
+                    let wait_time = (next_run - start).saturating_sub(Self::SPIN_TIME);
+                    sleep(wait_time);
                 } else {
                     let task_index = self.task_queue.pop().unwrap().module_index;
                     let module_data = &mut self.modules[task_index];
                     module_data.module.update();
-                    self.task_queue.push(QueueElement::new(now + module_data.cycle_time, task_index));
+
+                    let mut next = start + module_data.cycle_time;
+                    let now = Instant::now();
+                    if next < now {
+                        eprintln!("Warning: Module {} is running behind schedule!", task_index);
+                        next = now;
+                    }
+                    self.task_queue.push(QueueElement::new(next, task_index));
                 }
             }
         });
