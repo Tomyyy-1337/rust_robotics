@@ -51,10 +51,10 @@ impl ThreadContainer {
                 if next_run > now {
                     sleep(next_run - now);
                 } else {
-                    let task = self.task_queue.pop().unwrap();
-                    let module_data = &mut self.modules[task.module_index];
+                    let task_index = self.task_queue.pop().unwrap().module_index;
+                    let module_data = &mut self.modules[task_index];
                     module_data.module.update();
-                    self.task_queue.push(QueueElement::new(now + module_data.cycle_time, task.module_index));
+                    self.task_queue.push(QueueElement::new(now + module_data.cycle_time, task_index));
                 }
             }
         });

@@ -9,6 +9,7 @@ mod port_traits;
 pub mod prelude {
     pub use crate::send_port::SendPort;
     pub use crate::receive_port::ReceivePort;
+    pub use crate::inner_port::InnerPort;   
     pub use port_macros::ports;
     pub use crate::port_traits::PortMethods;
 }

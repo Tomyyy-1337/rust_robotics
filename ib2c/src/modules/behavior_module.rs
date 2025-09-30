@@ -6,12 +6,12 @@ use ports::prelude::{ports, ReceivePort, SendPort, PortMethods};
 use crate::meta_signals::MetaSignal;
 
 pub trait BehaviorModuleTrait: PortMethods + Default + Send + 'static {
+    fn transfer(module: &mut BehaviorModule<Self>);
+    fn target_rating(module: &BehaviorModule<Self>) -> MetaSignal;
+    
     fn init() -> Self where Self: Sized {
         Self::default()
     }
-    fn transfer(&mut self);
-    fn target_rating(&self) -> MetaSignal;
-
     fn new(cycle_time: Duration) -> ModuleBuilder<BehaviorModule<Self>> where Self: Sized {
         ModuleBuilder::new(BehaviorModule::new(Self::init()), cycle_time)
     }
@@ -30,8 +30,9 @@ impl<M: BehaviorModuleTrait> Module for BehaviorModule<M> {
     fn update(&mut self) {
         self.inner.update_ports();
         self.update_ports();
-        self.inner.transfer();
-        let target = self.inner.target_rating();
+
+        M::transfer(self);
+        let target = M::target_rating(self);
         let stimulation = *self.stimulation.get_data();
         let inhibition = *self.inhibition.get_data();
 

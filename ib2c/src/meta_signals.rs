@@ -32,6 +32,12 @@ impl MetaSignal {
     pub const HIGH: MetaSignal = MetaSignal { value: 1.0 };
 }
 
+impl Default for MetaSignal {
+    fn default() -> Self {
+        MetaSignal::new(0.0)
+    }
+}
+
 impl Add for MetaSignal {
     type Output = MetaSignal;
 

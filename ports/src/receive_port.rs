@@ -2,12 +2,12 @@ use std::ops::Deref;
 use crate::inner_port::InnerPort;
 use crate::port_data::PortData;
 
-pub struct ReceivePort<T> {
+pub struct ReceivePort<T: Send> {
     inner_port: InnerPort<T>,
     buffer: PortData<T>,
 }
 
-impl<T> ReceivePort<T> {
+impl<T: Send> ReceivePort<T> {
     pub fn new(data: T) -> Self {
         let port_data = PortData::new(data);
         let inner_port = InnerPort::with_default_data(port_data.clone());
@@ -31,13 +31,22 @@ impl<T> ReceivePort<T> {
     }
 }
 
-impl<T: Default> Default for ReceivePort<T> {
+impl<T: Default + Send> Clone for ReceivePort<T> {
+    fn clone(&self) -> Self {
+        Self {
+            inner_port: self.inner_port.clone(),
+            buffer: self.buffer.clone(),
+        }
+    }
+}
+
+impl<T: Default + Send> Default for ReceivePort<T> {
     fn default() -> Self {
         Self::new(T::default())
     }
 }
 
-impl<T> Deref for ReceivePort<T> {
+impl<T: Send> Deref for ReceivePort<T> {
     type Target = InnerPort<T>;
 
     fn deref(&self) -> &Self::Target {

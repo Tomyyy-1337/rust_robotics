@@ -2,11 +2,11 @@ use std::sync::{Arc, RwLock};
 use crate::port_data::PortData;
 use crate::port_type::PortType;
 
-pub struct InnerPort<T> {
+pub struct InnerPort<T: Send> {
     port_buffer: Arc<RwLock<PortType<T>>>,
 }
 
-impl<T> InnerPort<T> {
+impl<T: Send> InnerPort<T> {
     pub(crate) fn with_default_data(data: PortData<T>) -> Self {
         Self{
             port_buffer: Arc::new(RwLock::new(PortType::Endpoint(data))),
@@ -19,6 +19,12 @@ impl<T> InnerPort<T> {
             PortType::Endpoint(port_data) => port_data.clone(),
             PortType::PassThrough(inner_port) => inner_port.read(),
         }
+    }
+
+    pub fn get_data_blocking(&self) -> T
+        where T: Copy
+    {
+        *self.read().get_data()
     }
 
     pub(crate) fn write(&self, data: &PortData<T>) {
@@ -39,7 +45,7 @@ impl<T> InnerPort<T> {
     }
 }
 
-impl<T> Clone for InnerPort<T> {
+impl<T: Send> Clone for InnerPort<T> {
     fn clone(&self) -> Self {
         Self {
             port_buffer: Arc::clone(&self.port_buffer),
