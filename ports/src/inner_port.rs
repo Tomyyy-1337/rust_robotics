@@ -1,5 +1,4 @@
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
 use crate::port_data::PortData;
 use crate::port_type::PortType;
 
@@ -8,21 +7,6 @@ pub struct InnerPort<T> {
 }
 
 impl<T> InnerPort<T> {
-    pub(crate) fn new() -> Self
-    where
-        T: Default,
-    {
-        Self{
-            port_buffer: Arc::new(RwLock::new(PortType::new_endpoint())),
-        }
-    }
-
-    pub(crate) fn with_default(data: T) -> Self {
-        Self{
-            port_buffer: Arc::new(RwLock::new(PortType::endpoint_with_default(data))),
-        }
-    }
-
     pub(crate) fn with_default_data(data: PortData<T>) -> Self {
         Self{
             port_buffer: Arc::new(RwLock::new(PortType::Endpoint(data))),

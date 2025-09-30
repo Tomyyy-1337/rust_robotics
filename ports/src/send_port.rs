@@ -1,5 +1,4 @@
 use std::ops::Deref;
-use std::sync::Arc;
 use crate::inner_port::InnerPort;
 use crate::port_data::PortData;
 pub struct SendPort<T> {
