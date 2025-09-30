@@ -1,0 +1,8 @@
+[package]
+name = "ib2c"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+module = { path = "../module" }
+ports = { path = "../ports" }

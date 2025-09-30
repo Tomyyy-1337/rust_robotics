@@ -1,0 +1,3 @@
+[workspace]
+resolver = "3"
+members = [ "data_types", "ib2c", "module", "ports"]

@@ -1,0 +1,7 @@
+[package]
+name = "ports"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+port_macros = { path = "./src/port_macros" }
