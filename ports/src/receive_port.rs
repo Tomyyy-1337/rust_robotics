@@ -9,12 +9,9 @@ pub struct ReceivePort<T: Send> {
 
 impl<T: Send> ReceivePort<T> {
     pub fn new(data: T) -> Self {
-        let port_data = PortData::new(data);
-        let inner_port = InnerPort::with_default_data(port_data.clone());
-        Self {
-            inner_port: inner_port,
-            buffer: port_data,
-        }
+        let buffer = PortData::new(data);
+        let inner_port = InnerPort::with_default_data(buffer.clone());
+        Self { inner_port, buffer }
     }
 
     pub fn update(&mut self) {

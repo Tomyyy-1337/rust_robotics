@@ -1,13 +1,10 @@
 use quote::quote;
 use syn::{parse_macro_input, Fields, ItemStruct, Type};
 
-#[proc_macro_attribute]
-pub fn module(_attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(PortMethods)]
+pub fn module(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(item as ItemStruct);
     let struct_name = input.ident.clone();
-    let vis = input.vis;
-
-    let attrs = input.attrs.clone();
 
     let generics = input.generics.clone();
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
@@ -36,14 +33,6 @@ pub fn module(_attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> 
     }
 
     let expanded = quote! {
-        #(#attrs)*
-        #[derive(Default)]
-        #vis struct #struct_name #generics
-        #where_clause
-        {
-            #fields
-        }
-
         impl #impl_generics PortMethods for #struct_name #ty_generics
         #where_clause
         {

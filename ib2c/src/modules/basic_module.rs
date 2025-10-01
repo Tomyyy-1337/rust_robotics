@@ -10,12 +10,12 @@ pub trait BasicModuleTrait: PortMethods + Default + Send + 'static {
 
     fn update(module: &mut BasicModule<Self>);
 
-    fn new(cycle_time: Duration) -> ModuleBuilder<BasicModule<Self>> where Self: Sized {
+    fn new(
+        cycle_time: Duration,
+    ) -> ModuleBuilder<BasicModule<Self>> where Self: Sized {
         ModuleBuilder::new(BasicModule::new(Self::init()), cycle_time)
     }
 }
-
-
 
 pub struct BasicModule<M: BasicModuleTrait> {
     inner: M,

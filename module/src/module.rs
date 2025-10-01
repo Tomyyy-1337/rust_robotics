@@ -7,12 +7,15 @@ pub trait Module: Send + 'static {
 }
 
 pub struct ModuleBuilder<M: Module> {
-    inner: M,
-    cycle_time: Duration,
+    pub inner: M,
+    pub cycle_time: Duration,
 }
 
 impl<M: Module> ModuleBuilder<M> {
-    pub fn new(inner: M, cycle_time: Duration) -> Self {
+    pub fn new(
+        inner: M,
+        cycle_time: Duration,
+    ) -> Self {
         Self { inner, cycle_time }
     }
 

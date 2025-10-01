@@ -2,7 +2,7 @@ use std::cmp::min;
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 use module::{ModuleBuilder, Module};
-use ports::prelude::{module, ReceivePort, SendPort, PortMethods};
+use ports::prelude::*;
 use crate::meta_signals::MetaSignal;
 
 pub trait BehaviorModuleTrait: PortMethods + Default + Send + 'static {
@@ -11,13 +11,15 @@ pub trait BehaviorModuleTrait: PortMethods + Default + Send + 'static {
     }
     fn transfer(module: &mut BehaviorModule<Self>);
     fn target_rating(module: &BehaviorModule<Self>) -> MetaSignal;
-    
-    fn new(cycle_time: Duration) -> ModuleBuilder<BehaviorModule<Self>> where Self: Sized {
+
+    fn new(
+        cycle_time: Duration
+    ) -> ModuleBuilder<BehaviorModule<Self>> where Self: Sized {
         ModuleBuilder::new(BehaviorModule::new(Self::init()), cycle_time)
     }
 }
 
-#[module]
+#[derive(PortMethods, Default)]
 pub struct BehaviorModule<M: BehaviorModuleTrait> {
     inner: M,
     pub stimulation: ReceivePort<MetaSignal>,

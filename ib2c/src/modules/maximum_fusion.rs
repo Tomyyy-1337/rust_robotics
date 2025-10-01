@@ -15,9 +15,10 @@ pub struct MaximumFusion<D: Send> {
     pub output_port: SendPort<D>,
 }
 
-impl<D: Default + Send + 'static> MaximumFusion<D>
+impl<D> MaximumFusion<D>
 where
-    Self: Send
+    Self: Send,
+    D: Default + Send + 'static
 {
     pub fn init() -> Self {
         MaximumFusion {
@@ -37,14 +38,17 @@ where
         self.activity_ports.push(activity_port.clone());
     }
 
-    pub fn new(cycle_time: Duration) -> ModuleBuilder<MaximumFusion<D>> {
+    pub fn new(
+        cycle_time: Duration
+    ) -> ModuleBuilder<MaximumFusion<D>> {
         ModuleBuilder::new(MaximumFusion::init(), cycle_time)
     }
 }
 
-impl<D: Default + Send + 'static> Module for MaximumFusion<D>
+impl<D> Module for MaximumFusion<D>
 where
-    Self: Send
+    Self: Send,
+    D: Default + Send + 'static
 {
     fn update(&mut self) {
         let max = self.data_ports.iter()

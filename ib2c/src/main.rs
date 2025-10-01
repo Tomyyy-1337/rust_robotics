@@ -10,10 +10,10 @@ use modules::behavior_module::BehaviorModuleTrait;
 use ports::prelude::*;
 
 fn main() {
-    let module_1 = TestModule::new(Duration::from_millis(500));
-    let module_2 = TestModule::new(Duration::from_millis(500));
+    let module_1 = TestModule::new(Duration::from_millis(400));
+    let module_2 = TestModule::new(Duration::from_millis(400));
 
-    let basic_module = BasicTestModule::new(Duration::from_millis(500));
+    let basic_module = BasicTestModule::new(Duration::from_millis(10));
     module_1.in_data.connect_to_source(&basic_module.out_result);
     module_2.in_data.connect_to_source(&basic_module.out_result);
 
@@ -35,7 +35,7 @@ fn main() {
     park()
 }
 
-#[module]
+#[derive(PortMethods, Default)]
 struct TestModule {
     in_data: ReceivePort<u64>,
     out_data: SendPort<usize>,
@@ -65,12 +65,12 @@ impl BehaviorModuleTrait for TestModule {
         );
     }
 
-    fn target_rating(module: &BehaviorModule<Self>) -> MetaSignal {
+    fn target_rating(_module: &BehaviorModule<Self>) -> MetaSignal {
         MetaSignal::HIGH
     }
 }
 
-#[module]
+#[derive(PortMethods, Default)]
 struct BasicTestModule {
     pub out_result: SendPort<u64>,
     param: u64,
@@ -80,7 +80,7 @@ impl BasicModuleTrait for BasicTestModule {
     fn init() -> Self {
         BasicTestModule {
             param: 0,
-            out_result: SendPort::new(0),
+            ..Self::default()
         }
     }
 
@@ -88,7 +88,6 @@ impl BasicModuleTrait for BasicTestModule {
         module.param += 1;
         let fib = BasicTestModule::fib(module.param);
         module.out_result.send(fib);
-        println!("Basic module: fib({}) = {}", module.param, fib);
     }
 }
 
