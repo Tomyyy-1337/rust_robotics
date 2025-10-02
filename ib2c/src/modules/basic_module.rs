@@ -1,9 +1,9 @@
-use std::ops::{Deref, DerefMut};
 use std::time::Duration;
+use derived_deref::{Deref, DerefMut};
 use module::{ModuleBuilder, Module};
 use ports::prelude::PortMethods;
 
-pub trait BasicModuleTrait: PortMethods + Default + Send + 'static {
+pub trait BasicModuleTrait: PortMethods + Default {
     fn init() -> Self where Self: Sized {
         Self::default()
     }
@@ -17,6 +17,7 @@ pub trait BasicModuleTrait: PortMethods + Default + Send + 'static {
     }
 }
 
+#[derive(Deref, DerefMut)]
 pub struct BasicModule<M: BasicModuleTrait> {
     inner: M,
 }
@@ -33,19 +34,5 @@ impl<M: BasicModuleTrait> BasicModule<M> {
         BasicModule {
             inner,
         }
-    }
-}
-
-impl<M: BasicModuleTrait> Deref for BasicModule<M> {
-    type Target = M;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl<M: BasicModuleTrait> DerefMut for BasicModule<M> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
     }
 }

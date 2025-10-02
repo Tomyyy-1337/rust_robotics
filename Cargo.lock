@@ -10,9 +10,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "derived_deref"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "ib2c"
 version = "0.1.0"
 dependencies = [
+ "derived_deref",
  "module",
  "ports",
 ]

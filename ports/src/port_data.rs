@@ -1,12 +1,12 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-pub(crate) struct PortData<T: Send> {
+pub(crate) struct PortData<T> {
     data: Arc<T>,
     timestamp: Instant,
 }
 
-impl<T: Send> PortData<T> {
+impl<T> PortData<T> {
     pub(crate) fn new(data: T) -> Self {
         Self {
             data: Arc::new(data),
@@ -23,13 +23,13 @@ impl<T: Send> PortData<T> {
     }
 }
 
-impl<T: Default + Send> Default for PortData<T> {
+impl<T: Default> Default for PortData<T> {
     fn default() -> Self {
         Self::new(T::default())
     }
 }
 
-impl<T: Send> Clone for PortData<T> {
+impl<T> Clone for PortData<T> {
     fn clone(&self) -> Self {
         Self {
             data: Arc::clone(&self.data),

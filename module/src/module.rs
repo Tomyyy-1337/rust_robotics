@@ -2,7 +2,11 @@ use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 use crate::ThreadContainer;
 
-pub trait Module: Send + 'static {
+/// A module that can be added to a `ThreadContainer`.
+/// The module must implement the `update` method, which will be called
+/// periodically based on the specified cycle time.
+pub trait Module {
+    /// Update the module's internal state.
     fn update(&mut self);
 }
 
@@ -19,7 +23,10 @@ impl<M: Module> ModuleBuilder<M> {
         Self { inner, cycle_time }
     }
 
-    pub fn add_to_container(self, container: &mut ThreadContainer) {
+    pub fn add_to_container(self, container: &mut ThreadContainer)
+    where
+        M: Send + 'static
+    {
         container.add_module(self.inner, self.cycle_time);
     }
 }

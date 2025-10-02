@@ -1,14 +1,15 @@
 use std::cmp::min;
-use std::ops::{Deref, DerefMut};
 use std::time::Duration;
+use derived_deref::{Deref, DerefMut};
 use module::{ModuleBuilder, Module};
 use ports::prelude::*;
 use crate::meta_signals::MetaSignal;
 
-pub trait BehaviorModuleTrait: PortMethods + Default + Send + 'static {
+pub trait BehaviorModuleTrait: PortMethods + Default {
     fn init() -> Self where Self: Sized {
         Self::default()
     }
+    
     fn transfer(module: &mut BehaviorModule<Self>);
     fn target_rating(module: &BehaviorModule<Self>) -> MetaSignal;
 
@@ -19,9 +20,11 @@ pub trait BehaviorModuleTrait: PortMethods + Default + Send + 'static {
     }
 }
 
-#[derive(PortMethods, Default)]
+#[derive(PortMethods, Default, Deref, DerefMut)]
 pub struct BehaviorModule<M: BehaviorModuleTrait> {
+    #[deref]
     inner: M,
+    
     pub stimulation: ReceivePort<MetaSignal>,
     pub inhibition: ReceivePort<MetaSignal>,
     pub activity: SendPort<MetaSignal>,
@@ -54,19 +57,5 @@ impl<M: BehaviorModuleTrait> BehaviorModule<M> {
             activity: SendPort::new(MetaSignal::LOW),
             target_rating: SendPort::new(MetaSignal::LOW),
         }
-    }
-}
-
-impl<M: BehaviorModuleTrait> Deref for BehaviorModule<M> {
-    type Target = M;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl<M: BehaviorModuleTrait> DerefMut for BehaviorModule<M> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
     }
 }
