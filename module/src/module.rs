@@ -1,5 +1,6 @@
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;
+use derived_deref::{Deref, DerefMut};
 use crate::ThreadContainer;
 
 /// A module that can be added to a `ThreadContainer`.
@@ -10,7 +11,9 @@ pub trait Module {
     fn update(&mut self);
 }
 
+#[derive(Deref, DerefMut)]
 pub struct ModuleBuilder<M: Module> {
+    #[deref]
     pub inner: M,
     pub cycle_time: Duration,
 }
@@ -28,19 +31,5 @@ impl<M: Module> ModuleBuilder<M> {
         M: Send + 'static
     {
         container.add_module(self.inner, self.cycle_time);
-    }
-}
-
-impl<M: Module> Deref for ModuleBuilder<M> {
-    type Target = M;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl<M: Module> DerefMut for ModuleBuilder<M> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
     }
 }

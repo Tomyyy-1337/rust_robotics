@@ -1,7 +1,9 @@
 use std::ops::Deref;
+use derived_deref::Deref;
 use crate::inner_port::InnerPort;
 use crate::port_data::PortData;
 
+#[derive(Deref)]
 pub struct SendPort<T> {
     inner_port: InnerPort<T>,
 }
@@ -37,12 +39,3 @@ impl<T: Default> Default for SendPort<T> {
         Self::new(T::default())
     }
 }
-
-impl<T> Deref for SendPort<T> {
-    type Target = InnerPort<T>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner_port
-    }
-}
-

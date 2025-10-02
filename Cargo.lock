@@ -30,6 +30,9 @@ dependencies = [
 [[package]]
 name = "module"
 version = "0.1.0"
+dependencies = [
+ "derived_deref",
+]
 
 [[package]]
 name = "port_macros"
@@ -43,6 +46,7 @@ dependencies = [
 name = "ports"
 version = "0.1.0"
 dependencies = [
+ "derived_deref",
  "port_macros",
 ]
 

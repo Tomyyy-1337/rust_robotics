@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 port_macros = { path = "./src/port_macros" }
+derived_deref = { path = "../derived_deref" }
