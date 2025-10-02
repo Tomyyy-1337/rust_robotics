@@ -56,6 +56,7 @@ impl ThreadContainer {
     /// Starts the working thread that schedules modules based on their cycle times
     /// calling their `update` method when it's time
     pub fn run(mut self) {
+        println!("Running threads");
         std::thread::spawn(move || {
             while let Some(mut task) = self.task_queue.pop() {
                 self.wait_for_module(task.scheduled_start);
@@ -66,6 +67,7 @@ impl ThreadContainer {
                 task.scheduled_start = Self::next_start(task.scheduled_start, *cycle_time);
                 self.task_queue.push(task);
             }
+            println!("Threads stopped");
         });
     }
 

@@ -26,9 +26,10 @@ pub trait BehaviorModuleTrait: PortMethods + Default {
 
     /// Create a new behavior module with the specified cycle time.
     fn new(
-        cycle_time: Duration
+        cycle_time: Duration,
+        run_on_group_thread: bool,
     ) -> ModuleBuilder<BehaviorModule<Self>> where Self: Sized {
-        ModuleBuilder::new(BehaviorModule::new(Self::init()), cycle_time)
+        ModuleBuilder::new(BehaviorModule::new(Self::init()), cycle_time, run_on_group_thread)
     }
 }
 

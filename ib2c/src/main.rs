@@ -3,48 +3,48 @@ use std::thread::park;
 use std::time::{Duration, Instant};
 use meta_signals::MetaSignal;
 use ib2c::modules;
+use ib2c::modules::basic_group::BasicGroupTrait;
 use ib2c::modules::basic_module::{BasicModule, BasicModuleTrait};
 use ib2c::modules::behavior_module::BehaviorModule;
 use ib2c::modules::general_fusion::GeneralFusionTrait;
 use ib2c::modules::maximum_fusion::MaximumFusion;
-use module::ThreadContainer;
+use module::GroupBuilder;
 use modules::behavior_module::BehaviorModuleTrait;
 use ports::prelude::*;
 
 fn main() {
-    let module_1 = TestModule::new(Duration::from_millis(5));
-    let module_2 = TestModule::new(Duration::from_millis(5));
-
-    let basic_module = BasicTestModule::new(Duration::from_millis(10));
-    module_1.in_data.connect_to_source(&basic_module.out_result);
-    module_2.in_data.connect_to_source(&basic_module.out_result);
-
-    let mut maximum_fusion = MaximumFusion::new(Duration::from_millis(5));
-    maximum_fusion.add_module(&module_1.out_data, &module_1.activity);
-    maximum_fusion.add_module(&module_2.out_data, &module_2.activity);
-
-    let print_module = PrintModule::<usize>::new(Duration::from_millis(300));
-    print_module.in_data.connect_to_source(&maximum_fusion.output_port);
-
-    let mut container = ThreadContainer::new();
-    let mut container_2 = ThreadContainer::new();
-
-    module_1.add_to_container(&mut container);
-    module_2.add_to_container(&mut container);
-    maximum_fusion.add_to_container(&mut container);
-    print_module.add_to_container(&mut container_2);
-
-    container.run();
-    container_2.run();
+    let group = TestGroup::new(true);
+    group.spawn();
 
     park()
 }
 
+#[derive(Default)]
+struct TestGroup {}
+
+impl BasicGroupTrait for TestGroup {
+    fn init(&mut self, builder: &mut GroupBuilder) {
+        let module_1 = TestModule::new(Duration::from_millis(5), true);
+        let module_2 = Oscillator::new(Duration::from_millis(500), true);
+
+        let mut maximum_fusion = MaximumFusion::new(Duration::from_millis(10), true);
+        maximum_fusion.add_module(&module_2.out_data, &module_2.activity);
+        maximum_fusion.add_module(&module_1.out_data, &module_1.activity);
+
+        let print_module = PrintModule::new(Duration::from_millis(300), true);
+        print_module.in_data.connect_to_source(&maximum_fusion.output_port);
+
+        builder.add_module_builder(module_1);
+        builder.add_module_builder(module_2);
+        builder.add_module_builder(maximum_fusion);
+        builder.add_module_builder(print_module);
+    }
+}
+
 #[derive(PortMethods, Default)]
 struct TestModule {
-    pub in_data: ReceivePort<u64>,
-    pub out_data: SendPort<usize>,
-    count: usize,
+    pub out_data: SendPort<i32>,
+    count: i32,
 }
 
 impl BehaviorModuleTrait for TestModule {
@@ -63,6 +63,33 @@ impl BehaviorModuleTrait for TestModule {
 
     fn target_rating(_module: &BehaviorModule<Self>) -> MetaSignal {
         MetaSignal::HIGH
+    }
+}
+
+#[derive(PortMethods, Default)]
+struct Oscillator {
+    pub out_data: SendPort<i32>,
+    state: bool,
+}
+
+impl BehaviorModuleTrait for Oscillator {
+    fn init() -> Self {
+        Oscillator {
+            out_data: SendPort::new(-1),
+            state: false,
+        }
+    }
+
+    fn transfer(module: &mut BehaviorModule<Self>) {
+        module.state = !module.state;
+    }
+
+    fn target_rating(module: &BehaviorModule<Self>) -> MetaSignal {
+        if module.state {
+            MetaSignal::HIGH
+        } else {
+            MetaSignal::LOW
+        }
     }
 }
 

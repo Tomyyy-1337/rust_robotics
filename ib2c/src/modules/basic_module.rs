@@ -17,13 +17,14 @@ pub trait BasicModuleTrait: PortMethods + Default {
     /// Create a new basic module with the specified cycle time.
     fn new(
         cycle_time: Duration,
+        run_on_group_thread: bool,
     ) -> ModuleBuilder<BasicModule<Self>> where Self: Sized {
-        ModuleBuilder::new(BasicModule::new(Self::init()), cycle_time)
+        ModuleBuilder::new(BasicModule::new(Self::init()), cycle_time, run_on_group_thread)
     }
 }
 
 /// Inner structure of a basic module.
-/// Used by the [`BasicModuleTrait`] to create a basic module.
+/// Used by [`BasicModuleTrait`] to create a basic module.
 #[derive(Deref, DerefMut)]
 pub struct BasicModule<M: BasicModuleTrait> {
     inner: M,

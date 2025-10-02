@@ -18,11 +18,14 @@ pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
     fn fuse(module: &mut GeneralFusion<Self, D>) -> MetaSignal;
 
     /// Create a new general fusion module with the specified cycle time.
-    fn new(cycle: Duration) -> ModuleBuilder<GeneralFusion<Self, D>>
+    fn new(
+        cycle: Duration,
+        run_on_group_thread: bool,
+    ) -> ModuleBuilder<GeneralFusion<Self, D>>
     where
         Self: Sized,
     {
-        ModuleBuilder::new(GeneralFusion::new(Self::init()), cycle)
+        ModuleBuilder::new(GeneralFusion::new(Self::init()), cycle, run_on_group_thread)
     }
 }
 

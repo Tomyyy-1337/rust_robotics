@@ -15,14 +15,16 @@ pub struct ModuleBuilder<M: Module> {
     #[deref] #[deref_mut]
     pub inner: M,
     pub cycle_time: Duration,
+    pub run_on_group_thread: bool,
 }
 
 impl<M: Module> ModuleBuilder<M> {
     pub fn new(
         inner: M,
         cycle_time: Duration,
+        run_on_group_thread: bool,
     ) -> Self {
-        Self { inner, cycle_time }
+        Self { inner, cycle_time , run_on_group_thread }
     }
 
     pub fn add_to_container(self, container: &mut ThreadContainer)
