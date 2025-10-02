@@ -2,6 +2,7 @@ use derive_more::Deref;
 use crate::inner_port::InnerPort;
 use crate::port_data::PortData;
 
+/// A port that can send data to a connected port.
 #[derive(Deref)]
 pub struct SendPort<T> {
     inner_port: InnerPort<T>,
@@ -9,19 +10,24 @@ pub struct SendPort<T> {
 
 impl<T> SendPort<T> {
     pub fn new(data: T) -> Self {
-        let port_data = PortData::new(data);
-        let inner_port = InnerPort::with_default_data(port_data.clone());
         Self {
-            inner_port,
+            inner_port: InnerPort::with_default_data(PortData::new(data)),
         }
     }
 
-    pub fn connect_to_source(&self, source: &InnerPort<T>) {
-        self.inner_port.connect_to_source(source);
-    }
-
+    /// Sends data to the connected port.
     pub fn send(&mut self, data: T) {
         self.inner_port.write(&PortData::new(data));
+    }
+
+    /// Read the last data from the internal buffer.
+    pub fn get_last_data(&self) -> &T {
+        self.inner_port.read_from_buffer().get_data()
+    }
+
+    /// Get the timestamp of the last data from the internal buffer.
+    pub fn get_last_timestamp(&self) -> std::time::Instant {
+        self.inner_port.read_from_buffer().get_timestamp()
     }
 }
 

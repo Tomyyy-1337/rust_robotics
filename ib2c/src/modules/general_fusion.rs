@@ -42,8 +42,8 @@ where
     pub activity: SendPort<MetaSignal>,
     pub target_rating: SendPort<MetaSignal>,
 
-    pub data_ports: Vec<InnerPort<D>>,
-    pub activity_ports: Vec<InnerPort<MetaSignal>>,
+    pub data_ports: Vec<ReceivePort<D>>,
+    pub activity_ports: Vec<ReceivePort<MetaSignal>>,
     pub output_port: SendPort<D>,
 }
 
@@ -55,6 +55,13 @@ where
     fn update(&mut self) {
         self.update_ports();
         self.inner.update_ports();
+        for port in &mut self.data_ports {
+            port.update();
+        }
+        for port in &mut self.activity_ports {
+            port.update();
+        }
+
         let target = M::fuse(self);
         let stimulation = *self.stimulation.get_data();
         let inhibition = *self.inhibition.get_data();
@@ -70,7 +77,7 @@ where
     M: GeneralFusionTrait<D>,
     D: Default,
 {
-    pub fn new(inner: M) -> Self {
+    fn new(inner: M) -> Self {
         GeneralFusion {
             inner,
             stimulation: ReceivePort::new(MetaSignal::HIGH),
@@ -83,8 +90,13 @@ where
         }
     }
 
+    /// Add a new module to the fusion.
     pub fn add_module(&mut self, data_port: &InnerPort<D>, activity_port: &InnerPort<MetaSignal>) {
-        self.data_ports.push(data_port.clone());
-        self.activity_ports.push(activity_port.clone());
+        let data_receive_port = ReceivePort::default();
+        data_receive_port.connect_to_source(data_port);
+        self.data_ports.push(data_receive_port);
+        let activity_receive_port = ReceivePort::default();
+        activity_receive_port.connect_to_source(activity_port);
+        self.activity_ports.push(activity_receive_port);
     }
 }

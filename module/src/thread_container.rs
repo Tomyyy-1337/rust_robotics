@@ -3,9 +3,9 @@ use std::thread::sleep;
 use std::time::{Duration, Instant};
 use crate::module::Module;
 
-/// An element in the task queue, representing a module and its next scheduled start time
-/// The ordering is reversed to make the BinaryHeap a min-heap based on next_run time
-struct QueueElement {
+/// A Task, representing a module and its next scheduled start time
+/// The ordering is reversed to make BinaryHeap a min-heap based on next_run time
+struct Task {
     scheduled_start: Instant,
     module_index: usize,
 }
@@ -21,7 +21,7 @@ struct ModuleData {
 /// Modules never run more frequently than their cycle time, but may run less frequently
 pub struct ThreadContainer {
     modules: Vec<ModuleData>,
-    task_queue: BinaryHeap<QueueElement>,
+    task_queue: BinaryHeap<Task>,
 }
 
 impl ThreadContainer {
@@ -46,7 +46,7 @@ impl ThreadContainer {
     pub fn add_dyn_module(&mut self, module: Box<dyn Module + Send>, cycle_time: Duration){
         self.modules.push(ModuleData { module, cycle_time });
         self.task_queue.push(
-            QueueElement {
+            Task {
                 scheduled_start: Instant::now(),
                 module_index: self.modules.len() - 1,
             }
@@ -89,18 +89,18 @@ impl ThreadContainer {
     }
 }
 
-impl Ord for QueueElement {
+impl Ord for Task {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         other.scheduled_start.cmp(&self.scheduled_start)
     }
 }
-impl PartialOrd for QueueElement {
+impl PartialOrd for Task {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(other.scheduled_start.cmp(&self.scheduled_start))
     }
 }
-impl Eq for QueueElement {}
-impl PartialEq for QueueElement {
+impl Eq for Task {}
+impl PartialEq for Task {
     fn eq(&self, other: &Self) -> bool {
         self.scheduled_start == other.scheduled_start
     }

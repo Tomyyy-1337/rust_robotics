@@ -37,7 +37,7 @@ impl<M: BasicModuleTrait> Module for BasicModule<M> {
 }
 
 impl<M: BasicModuleTrait> BasicModule<M> {
-    pub fn new(inner: M) -> Self {
+    fn new(inner: M) -> Self {
         BasicModule {
             inner,
         }

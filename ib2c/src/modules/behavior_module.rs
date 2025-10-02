@@ -63,7 +63,7 @@ impl<M: BehaviorModuleTrait> Module for BehaviorModule<M> {
 }
 
 impl<M: BehaviorModuleTrait> BehaviorModule<M> {
-    pub fn new(inner: M) -> Self {
+    fn new(inner: M) -> Self {
         BehaviorModule {
             inner,
             stimulation: ReceivePort::new(MetaSignal::HIGH),

@@ -73,9 +73,10 @@ struct PrintModule<T> {
 
 impl<T: Debug + Default> BasicModuleTrait for PrintModule<T> {
     fn update(module: &mut BasicModule<Self>) {
+        let data = module.in_data.get_data();
         let timestamp = module.in_data.get_timestamp();
         let delay = Instant::now() - timestamp;
-        println!("Received: {:?}, Delay: {:?}", module.in_data.get_data(), delay);
+        println!("Received: {:?}, Delay: {:?}", data, delay);
     }
 }
 
