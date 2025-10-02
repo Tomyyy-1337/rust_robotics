@@ -1,6 +1,5 @@
-use std::ops::{Deref, DerefMut};
 use std::time::Duration;
-use derived_deref::{Deref, DerefMut};
+use derive_more::with_trait::{Deref, DerefMut};
 use crate::ThreadContainer;
 
 /// A module that can be added to a `ThreadContainer`.
@@ -13,7 +12,7 @@ pub trait Module {
 
 #[derive(Deref, DerefMut)]
 pub struct ModuleBuilder<M: Module> {
-    #[deref]
+    #[deref] #[deref_mut]
     pub inner: M,
     pub cycle_time: Duration,
 }

@@ -6,4 +6,5 @@ edition = "2024"
 [dependencies]
 module = { path = "../module" }
 ports = { path = "../ports" }
-derived_deref = { path = "../derived_deref" }
+meta_signals = { path = "../meta_signals" }
+derive_more = { version = "2.0.1", features = ["deref", "deref_mut"] }

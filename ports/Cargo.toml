@@ -5,4 +5,4 @@ edition = "2024"
 
 [dependencies]
 port_macros = { path = "./src/port_macros" }
-derived_deref = { path = "../derived_deref" }
+derive_more = { version = "2.0.1", features = ["deref"] }

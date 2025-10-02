@@ -1,5 +1,4 @@
-use std::ops::Deref;
-use derived_deref::Deref;
+use derive_more::Deref;
 use crate::inner_port::InnerPort;
 use crate::port_data::PortData;
 

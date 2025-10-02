@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::thread::park;
 use std::time::{Duration, Instant};
-use ib2c::meta_signals::MetaSignal;
+use meta_signals::MetaSignal;
 use ib2c::modules;
 use ib2c::modules::basic_module::{BasicModule, BasicModuleTrait};
 use ib2c::modules::behavior_module::BehaviorModule;
@@ -42,8 +42,8 @@ fn main() {
 
 #[derive(PortMethods, Default)]
 struct TestModule {
-    in_data: ReceivePort<u64>,
-    out_data: SendPort<usize>,
+    pub in_data: ReceivePort<u64>,
+    pub out_data: SendPort<usize>,
     count: usize,
 }
 
@@ -68,7 +68,7 @@ impl BehaviorModuleTrait for TestModule {
 
 #[derive(PortMethods, Default)]
 struct PrintModule<T> {
-    in_data: ReceivePort<T>
+    pub in_data: ReceivePort<T>
 }
 
 impl<T: Debug + Default> BasicModuleTrait for PrintModule<T> {

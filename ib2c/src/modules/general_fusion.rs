@@ -1,16 +1,23 @@
 use std::time::Duration;
-use derived_deref::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut};
 use module::{Module, ModuleBuilder};
 use ports::prelude::*;
-use crate::meta_signals::MetaSignal;
+use meta_signals::MetaSignal;
 
+/// A general fusion module that can fuse multiple data inputs based on their activity levels.
+/// The fusion strategy is defined by implementing this trait.
 pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
+    /// Initialize the fusion module (optional).
     fn init() -> Self where Self: Sized {
         Self::default()
     }
 
-    fn fuse(module: &mut GeneralFusion<Self, D>);
+    /// Fuse the inputs by connection a data port to the output port
+    /// or by publishing a values to the output port.
+    /// Return the target rating of the fusion.
+    fn fuse(module: &mut GeneralFusion<Self, D>) -> MetaSignal;
 
+    /// Create a new general fusion module with the specified cycle time.
     fn new(cycle: Duration) -> ModuleBuilder<GeneralFusion<Self, D>>
     where
         Self: Sized,
@@ -19,13 +26,15 @@ pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
     }
 }
 
+/// Inner structure of a general fusion module.
+/// Used by the [`GeneralFusionTrait`] to create a fusion module.
 #[derive(PortMethods, Deref, DerefMut)]
 pub struct GeneralFusion<M, D>
 where
     M: GeneralFusionTrait<D>,
     D: Default,
 {
-    #[deref]
+    #[deref] #[deref_mut]
     inner: M,
 
     pub stimulation: ReceivePort<MetaSignal>,
@@ -46,7 +55,13 @@ where
     fn update(&mut self) {
         self.update_ports();
         self.inner.update_ports();
-        M::fuse(self);
+        let target = M::fuse(self);
+        let stimulation = *self.stimulation.get_data();
+        let inhibition = *self.inhibition.get_data();
+        let potential = std::cmp::min(stimulation, MetaSignal::HIGH - inhibition);
+        let activity = std::cmp::min(potential, target);
+        self.activity.send(activity);
+        self.target_rating.send(target);
     }
 }
 
