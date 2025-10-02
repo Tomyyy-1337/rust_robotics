@@ -8,7 +8,7 @@ use ib2c::modules::basic_module::{BasicModule, BasicModuleTrait};
 use ib2c::modules::behavior_module::BehaviorModule;
 use ib2c::modules::general_fusion::GeneralFusionTrait;
 use ib2c::modules::maximum_fusion::MaximumFusion;
-use module::GroupBuilder;
+use scheduling::GroupBuilder;
 use modules::behavior_module::BehaviorModuleTrait;
 use ports::prelude::*;
 

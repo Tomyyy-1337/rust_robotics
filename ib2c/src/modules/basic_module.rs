@@ -1,11 +1,11 @@
 use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use module::{ModuleBuilder, Module};
+use scheduling::{ModuleBuilder, Module};
 use ports::prelude::PortMethods;
 
-/// A basic module, the update method will be called periodically.
+/// A basic scheduling, the update method will be called periodically.
 pub trait BasicModuleTrait: PortMethods + Default {
-    /// Initialize the basic module (optional).
+    /// Initialize the basic scheduling (optional).
     fn init() -> Self where Self: Sized {
         Self::default()
     }
@@ -14,7 +14,7 @@ pub trait BasicModuleTrait: PortMethods + Default {
     /// and read from or write to ports.
     fn update(module: &mut BasicModule<Self>);
 
-    /// Create a new basic module with the specified cycle time.
+    /// Create a new basic scheduling with the specified cycle time.
     fn new(
         cycle_time: Duration,
         run_on_group_thread: bool,
@@ -23,8 +23,8 @@ pub trait BasicModuleTrait: PortMethods + Default {
     }
 }
 
-/// Inner structure of a basic module.
-/// Used by [`BasicModuleTrait`] to create a basic module.
+/// Inner structure of a basic scheduling.
+/// Used by [`BasicModuleTrait`] to create a basic scheduling.
 #[derive(Deref, DerefMut)]
 pub struct BasicModule<M: BasicModuleTrait> {
     inner: M,

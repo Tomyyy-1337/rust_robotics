@@ -2,11 +2,11 @@ use std::time::Duration;
 use derive_more::with_trait::{Deref, DerefMut};
 use crate::ThreadContainer;
 
-/// A module that can be added to a `ThreadContainer`.
-/// The module must implement the `update` method, which will be called
+/// A scheduling that can be added to a `ThreadContainer`.
+/// The scheduling must implement the `update` method, which will be called
 /// periodically based on the specified cycle time.
 pub trait Module {
-    /// Update the module's internal state.
+    /// Update the scheduling's internal state.
     fn update(&mut self);
 }
 

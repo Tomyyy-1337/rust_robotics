@@ -1,30 +1,30 @@
 use std::cmp::min;
 use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use module::{ModuleBuilder, Module};
+use scheduling::{ModuleBuilder, Module};
 use ports::prelude::*;
 use meta_signals::MetaSignal;
 
-/// An IB2C behavior module with stimulation, inhibition, activity and target_rating ports.
+/// An IB2C behavior scheduling with stimulation, inhibition, activity and target_rating ports.
 /// The transfer and target_rating functions are called periodically. Transfer will always be called before target_rating.
 /// transfer is used to update the internal state while target_rating expresses how much the behavior wants to be active.
 /// The activity of the behavior is calculated using stimulation, inhibition and target_rating.
 /// The activity is the minimum op potential and target_rating. Where potential is the minimum of stimulation
 /// and (HIGH - inhibition).
 pub trait BehaviorModuleTrait: PortMethods + Default {
-    /// Initialize the behavior module (optional).
+    /// Initialize the behavior scheduling (optional).
     fn init() -> Self where Self: Sized {
         Self::default()
     }
 
     /// Called periodically. Use this to update internal state
-    /// and read from or write to ports of your module.
+    /// and read from or write to ports of your scheduling.
     fn transfer(module: &mut BehaviorModule<Self>);
 
-    /// Return the target rating of the behavior module used to calculate the activity.
+    /// Return the target rating of the behavior scheduling used to calculate the activity.
     fn target_rating(module: &BehaviorModule<Self>) -> MetaSignal;
 
-    /// Create a new behavior module with the specified cycle time.
+    /// Create a new behavior scheduling with the specified cycle time.
     fn new(
         cycle_time: Duration,
         run_on_group_thread: bool,
@@ -33,8 +33,8 @@ pub trait BehaviorModuleTrait: PortMethods + Default {
     }
 }
 
-/// Inner structure of a behavior module.
-/// Used by the [`BehaviorModuleTrait`] to create a behavior module.
+/// Inner structure of a behavior scheduling.
+/// Used by the [`BehaviorModuleTrait`] to create a behavior scheduling.
 #[derive(PortMethods, Default, Deref, DerefMut)]
 pub struct BehaviorModule<M: BehaviorModuleTrait> {
     #[deref] #[deref_mut]

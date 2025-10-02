@@ -5,7 +5,7 @@ use crate::modules::general_fusion::{GeneralFusion, GeneralFusionTrait};
 #[derive(Default, PortMethods)]
 pub struct MaximumFusion { }
 
-/// A fusion module that connects the output port to the data port with the highest activity.
+/// A fusion scheduling that connects the output port to the data port with the highest activity.
 /// The target rating is the activity of the selected data port.
 /// If no data ports are available, the output port is not connected and the target rating is LOW.
 impl<D: Default> GeneralFusionTrait<D> for MaximumFusion {

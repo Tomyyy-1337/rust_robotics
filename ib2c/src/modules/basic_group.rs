@@ -1,4 +1,4 @@
-use module::GroupBuilder;
+use scheduling::GroupBuilder;
 
 pub trait BasicGroupTrait {
     fn init(&mut self, builder: &mut GroupBuilder) where Self: Sized;

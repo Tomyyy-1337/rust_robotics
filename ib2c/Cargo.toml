@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-module = { path = "../module" }
+scheduling = { path = "../scheduling" }
 ports = { path = "../ports" }
 meta_signals = { path = "../meta_signals" }
 derive_more = { version = "2.0.1", features = ["deref", "deref_mut"] }

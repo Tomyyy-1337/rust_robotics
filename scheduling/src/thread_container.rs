@@ -3,7 +3,7 @@ use std::thread::sleep;
 use std::time::{Duration, Instant};
 use crate::module::Module;
 
-/// A Task, representing a module and its next scheduled start time
+/// A Task, representing a scheduling and its next scheduled start time
 /// The ordering is reversed to make BinaryHeap a min-heap based on next_run time
 struct Task {
     scheduled_start: Instant,
@@ -17,7 +17,7 @@ struct ModuleData {
 }
 
 /// A container that manages and runs multiple modules in a separate thread
-/// Each module is scheduled to run based on its specified cycle time
+/// Each scheduling is scheduled to run based on its specified cycle time
 /// Modules never run more frequently than their cycle time, but may run less frequently
 pub struct ThreadContainer {
     modules: Vec<ModuleData>,
@@ -27,7 +27,7 @@ pub struct ThreadContainer {
 impl ThreadContainer {
     /// Creates a new, empty ThreadContainer
     /// The container can be used to add modules and then run them in a separate thread
-    /// with each module being called based on its cycle time.
+    /// with each scheduling being called based on its cycle time.
     pub fn new() -> Self {
         Self {
             modules: Vec::new(),
@@ -35,14 +35,14 @@ impl ThreadContainer {
         }
     }
 
-    /// Adds a module to the container with the specified cycle time
-    /// The module will be called every `cycle_time` duration in the working thread
+    /// Adds a scheduling to the container with the specified cycle time
+    /// The scheduling will be called every `cycle_time` duration in the working thread
     pub fn add_module<M: Module + Send + 'static>(&mut self, module: M, cycle_time: Duration) {
         self.add_dyn_module(Box::new(module), cycle_time)
     }
 
-    /// Adds a boxed module to the container with the specified cycle time
-    /// The module will be called every `cycle_time` duration in the working thread
+    /// Adds a boxed scheduling to the container with the specified cycle time
+    /// The scheduling will be called every `cycle_time` duration in the working thread
     pub fn add_dyn_module(&mut self, module: Box<dyn Module + Send>, cycle_time: Duration){
         self.modules.push(ModuleData { module, cycle_time });
         self.task_queue.push(
@@ -71,7 +71,7 @@ impl ThreadContainer {
         });
     }
 
-    /// Sleeps until the next module is scheduled to run
+    /// Sleeps until the next scheduling is scheduled to run
     fn wait_for_module(&self, scheduled_start: Instant) {
         let now = Instant::now();
         if scheduled_start > now {
@@ -80,7 +80,7 @@ impl ThreadContainer {
         }
     }
 
-    /// Calculates the next start time for a module, ensuring it is not in the past
+    /// Calculates the next start time for a scheduling, ensuring it is not in the past
     fn next_start(last_run: Instant, cycle_time: Duration) -> Instant {
         let next = last_run + cycle_time;
         let now = Instant::now();

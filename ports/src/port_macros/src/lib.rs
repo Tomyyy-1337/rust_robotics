@@ -13,7 +13,7 @@ pub fn module(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
         fields_named.named
     } else {
         return proc_macro::TokenStream::from(quote! {
-            compile_error!("The #[module] macro can only be applied to structs with named fields.");
+            compile_error!("The #[scheduling] macro can only be applied to structs with named fields.");
         });
     };
 

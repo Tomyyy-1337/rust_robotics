@@ -1,13 +1,13 @@
 use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use module::{Module, ModuleBuilder};
+use scheduling::{Module, ModuleBuilder};
 use ports::prelude::*;
 use meta_signals::MetaSignal;
 
-/// A general fusion module that can fuse multiple data inputs based on their activity levels.
+/// A general fusion scheduling that can fuse multiple data inputs based on their activity levels.
 /// The fusion strategy is defined by implementing this trait.
 pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
-    /// Initialize the fusion module (optional).
+    /// Initialize the fusion scheduling (optional).
     fn init() -> Self where Self: Sized {
         Self::default()
     }
@@ -17,7 +17,7 @@ pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
     /// Return the target rating of the fusion.
     fn fuse(module: &mut GeneralFusion<Self, D>) -> MetaSignal;
 
-    /// Create a new general fusion module with the specified cycle time.
+    /// Create a new general fusion scheduling with the specified cycle time.
     fn new(
         cycle: Duration,
         run_on_group_thread: bool,
@@ -29,8 +29,8 @@ pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
     }
 }
 
-/// Inner structure of a general fusion module.
-/// Used by the [`GeneralFusionTrait`] to create a fusion module.
+/// Inner structure of a general fusion scheduling.
+/// Used by the [`GeneralFusionTrait`] to create a fusion scheduling.
 #[derive(PortMethods, Deref, DerefMut)]
 pub struct GeneralFusion<M, D>
 where
@@ -93,7 +93,7 @@ where
         }
     }
 
-    /// Add a new module to the fusion.
+    /// Add a new scheduling to the fusion.
     pub fn add_module(&mut self, data_port: &InnerPort<D>, activity_port: &InnerPort<MetaSignal>) {
         let data_receive_port = ReceivePort::default();
         data_receive_port.connect_to_source(data_port);

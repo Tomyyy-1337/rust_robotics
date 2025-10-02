@@ -35,20 +35,13 @@ version = "0.1.0"
 dependencies = [
  "derive_more",
  "meta_signals",
- "module",
  "ports",
+ "scheduling",
 ]
 
 [[package]]
 name = "meta_signals"
 version = "0.1.0"
-
-[[package]]
-name = "module"
-version = "0.1.0"
-dependencies = [
- "derive_more",
-]
 
 [[package]]
 name = "port_macros"
@@ -83,6 +76,17 @@ checksum = "ce25767e7b499d1b604768e7cde645d14cc8584231ea6b295e9c9eb22c02e1d1"
 dependencies = [
  "proc-macro2",
 ]
+
+[[package]]
+name = "scheduling"
+version = "0.1.0"
+dependencies = [
+ "derive_more",
+]
+
+[[package]]
+name = "serialization"
+version = "0.1.0"
 
 [[package]]
 name = "syn"
