@@ -1,6 +1,6 @@
 use std::time::Duration;
 use derive_more::with_trait::{Deref, DerefMut};
-use crate::ThreadContainer;
+use crate::{SpawnMode, ThreadContainer};
 
 /// A scheduling that can be added to a `ThreadContainer`.
 /// The scheduling must implement the `update` method, which will be called
@@ -15,22 +15,16 @@ pub struct ModuleBuilder<M: Module> {
     #[deref] #[deref_mut]
     pub inner: M,
     pub cycle_time: Duration,
-    pub run_on_group_thread: bool,
+    pub spawn_mode: SpawnMode
 }
 
 impl<M: Module> ModuleBuilder<M> {
+    /// create a new module builder. Wrapper for all modules.
     pub fn new(
         inner: M,
         cycle_time: Duration,
-        run_on_group_thread: bool,
+        spawn_mode: SpawnMode
     ) -> Self {
-        Self { inner, cycle_time , run_on_group_thread }
-    }
-
-    pub fn add_to_container(self, container: &mut ThreadContainer)
-    where
-        M: Send + 'static
-    {
-        container.add_module(self.inner, self.cycle_time);
+        Self { inner, cycle_time , spawn_mode }
     }
 }

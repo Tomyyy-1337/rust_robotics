@@ -1,7 +1,7 @@
 use std::cmp::min;
 use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use scheduling::{ModuleBuilder, Module};
+use scheduling::{ModuleBuilder, Module, SpawnMode};
 use ports::prelude::*;
 use meta_signals::MetaSignal;
 
@@ -24,12 +24,9 @@ pub trait BehaviorModuleTrait: PortMethods + Default {
     /// Return the target rating of the behavior scheduling used to calculate the activity.
     fn target_rating(module: &BehaviorModule<Self>) -> MetaSignal;
 
-    /// Create a new behavior scheduling with the specified cycle time.
-    fn new(
-        cycle_time: Duration,
-        run_on_group_thread: bool,
-    ) -> ModuleBuilder<BehaviorModule<Self>> where Self: Sized {
-        ModuleBuilder::new(BehaviorModule::new(Self::init()), cycle_time, run_on_group_thread)
+    /// Create a new behavior module. Should be wrapped in a [`scheduling::ModuleBuilder::new`] to be added to a ThreadContainer.
+    fn new() -> BehaviorModule<Self> where Self: Sized {
+        BehaviorModule::new(Self::init())
     }
 }
 

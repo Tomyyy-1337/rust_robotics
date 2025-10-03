@@ -1,6 +1,6 @@
 use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use scheduling::{Module, ModuleBuilder};
+use scheduling::{Module, ModuleBuilder, SpawnMode};
 use ports::prelude::*;
 use meta_signals::MetaSignal;
 
@@ -17,15 +17,12 @@ pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
     /// Return the target rating of the fusion.
     fn fuse(module: &mut GeneralFusion<Self, D>) -> MetaSignal;
 
-    /// Create a new general fusion scheduling with the specified cycle time.
-    fn new(
-        cycle: Duration,
-        run_on_group_thread: bool,
-    ) -> ModuleBuilder<GeneralFusion<Self, D>>
+    /// Create a new general fusion module. Should be wrapped in a [`scheduling::ModuleBuilder::new`] to be added to a ThreadContainer.
+    fn new() -> GeneralFusion<Self, D>
     where
         Self: Sized,
     {
-        ModuleBuilder::new(GeneralFusion::new(Self::init()), cycle, run_on_group_thread)
+        GeneralFusion::new(Self::init())
     }
 }
 

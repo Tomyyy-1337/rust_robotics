@@ -1,15 +1,21 @@
 use std::time::Duration;
 use crate::{Module, ModuleBuilder, ThreadContainer};
 
+#[derive(Copy, Clone)]
+pub enum SpawnMode {
+    GroupThread,
+    NewThread
+}
+
 struct ModuleData {
     module: Box<dyn Module + Send>,
     cycle_time: Duration,
-    add_to_group_thread: bool,
+    spawn_mode: SpawnMode,
 }
 
 struct GroupData {
     group: GroupChildren,
-    add_to_group_thread: bool,
+    spawn_mode: SpawnMode,
 }
 
 pub struct GroupChildren {
@@ -18,14 +24,14 @@ pub struct GroupChildren {
 }
 
 pub struct GroupBuilder {
-    run_on_group_thread: bool,
+    spawn_mode: SpawnMode,
     children: GroupChildren,
 }
 
 impl GroupBuilder {
-    pub fn new(run_on_group_thread: bool) -> Self {
+    pub fn new(spawn_mode: SpawnMode) -> Self {
         Self {
-            run_on_group_thread,
+            spawn_mode,
             children: GroupChildren {
                 modules: Vec::new(),
                 groups: Vec::new(),
@@ -33,18 +39,18 @@ impl GroupBuilder {
         }
     }
 
-    pub fn add_module_builder<M: Module + Send + 'static>(&mut self, builder: ModuleBuilder<M>) {
+    pub fn add_module<M: Module + Send + 'static>(&mut self, builder: ModuleBuilder<M>) {
         self.children.modules.push(ModuleData {
             module: Box::new(builder.inner),
             cycle_time: builder.cycle_time,
-            add_to_group_thread: builder.run_on_group_thread,
+            spawn_mode: builder.spawn_mode,
         });
     }
 
     pub fn add_group(&mut self, group: GroupBuilder) {
         self.children.groups.push(GroupData {
             group: group.children,
-            add_to_group_thread: group.run_on_group_thread,
+            spawn_mode: group.spawn_mode
         });
     }
 
@@ -56,21 +62,23 @@ impl GroupBuilder {
 
     fn spawn_on_thread(group_children: GroupChildren, container: &mut ThreadContainer) {
         for child_module in group_children.modules {
-            if child_module.add_to_group_thread {
-                container.add_dyn_module(child_module.module, child_module.cycle_time);
-            } else {
-                let mut new_container = ThreadContainer::new();
-                new_container.add_dyn_module(child_module.module, child_module.cycle_time);
-                new_container.run();
+            match child_module.spawn_mode {
+                SpawnMode::GroupThread => container.add_dyn_module(child_module.module, child_module.cycle_time),
+                SpawnMode::NewThread => {
+                    let mut new_container = ThreadContainer::new();
+                    new_container.add_dyn_module(child_module.module, child_module.cycle_time);
+                    new_container.run();
+                }
             }
         }
         for child_group in group_children.groups {
-            if child_group.add_to_group_thread {
-                Self::spawn_on_thread(child_group.group, container);
-            } else {
-                let mut new_container = ThreadContainer::new();
-                Self::spawn_on_thread(child_group.group, &mut new_container);
-                new_container.run();
+            match child_group.spawn_mode {
+                SpawnMode::GroupThread => Self::spawn_on_thread(child_group.group, container),
+                SpawnMode::NewThread => {
+                    let mut new_container = ThreadContainer::new();
+                    Self::spawn_on_thread(child_group.group, &mut new_container);
+                    new_container.run();
+                }
             }
         }
     }

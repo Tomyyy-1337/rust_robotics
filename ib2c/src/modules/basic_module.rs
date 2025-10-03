@@ -1,6 +1,6 @@
 use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use scheduling::{ModuleBuilder, Module};
+use scheduling::Module;
 use ports::prelude::PortMethods;
 
 /// A basic scheduling, the update method will be called periodically.
@@ -14,12 +14,9 @@ pub trait BasicModuleTrait: PortMethods + Default {
     /// and read from or write to ports.
     fn update(module: &mut BasicModule<Self>);
 
-    /// Create a new basic scheduling with the specified cycle time.
-    fn new(
-        cycle_time: Duration,
-        run_on_group_thread: bool,
-    ) -> ModuleBuilder<BasicModule<Self>> where Self: Sized {
-        ModuleBuilder::new(BasicModule::new(Self::init()), cycle_time, run_on_group_thread)
+    /// Create a new basic module. Should be wrapped in a [`scheduling::ModuleBuilder::new`] to be added to a ThreadContainer.
+    fn new() -> BasicModule<Self> where Self: Sized {
+        BasicModule::new(Self::init())
     }
 }
 
