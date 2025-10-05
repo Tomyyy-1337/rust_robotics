@@ -1,10 +1,9 @@
-use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use scheduling::{Module, ModuleBuilder, SpawnMode};
+use ib2c_macros::IB2CMetaSignals;
+use scheduling::Module;
 use ports::prelude::*;
 use meta_signals::MetaSignal;
 use crate::ib2c_meta_signals::IB2CMetaSignals;
-use crate::modules::behavior_module::{BehaviorModule, BehaviorModuleTrait};
 
 /// A general fusion scheduling that can fuse multiple data inputs based on their activity levels.
 /// The fusion strategy is defined by implementing this trait.
@@ -30,7 +29,7 @@ pub trait GeneralFusionTrait<D: Default>: PortMethods + Default {
 
 /// Inner structure of a general fusion scheduling.
 /// Used by the [`GeneralFusionTrait`] to create a fusion scheduling.
-#[derive(PortMethods, Deref, DerefMut)]
+#[derive(PortMethods, Deref, DerefMut, IB2CMetaSignals)]
 pub struct GeneralFusion<M, D>
 where
     M: GeneralFusionTrait<D>,
@@ -100,20 +99,5 @@ where
         let activity_receive_port = ReceivePort::default();
         activity_receive_port.connect_to_source(activity_port);
         self.activity_ports.push(activity_receive_port);
-    }
-}
-
-impl<M: GeneralFusionTrait<D>, D: Default> IB2CMetaSignals for GeneralFusion<M, D> {
-    fn stimulation(&mut self) -> &mut ReceivePort<MetaSignal> {
-        &mut self.stimulation
-    }
-    fn inhibition(&mut self) -> &mut ReceivePort<MetaSignal> {
-        &mut self.inhibition
-    }
-    fn activity(&mut self) -> &mut SendPort<MetaSignal> {
-        &mut self.activity
-    }
-    fn target_rating(&mut self) -> &mut SendPort<MetaSignal> {
-        &mut self.target_rating
     }
 }

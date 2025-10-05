@@ -7,3 +7,4 @@ pub use thread_container::ThreadContainer;
 pub use module::*;
 pub use group::*;
 pub use spawn_mode::*;
+pub use spawn_macro::spawns;

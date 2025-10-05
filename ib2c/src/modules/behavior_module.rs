@@ -1,7 +1,7 @@
 use std::cmp::min;
-use std::time::Duration;
 use derive_more::{Deref, DerefMut};
-use scheduling::{ModuleBuilder, Module, SpawnMode};
+use ib2c_macros::IB2CMetaSignals;
+use scheduling::Module;
 use ports::prelude::*;
 use meta_signals::MetaSignal;
 use crate::ib2c_meta_signals::IB2CMetaSignals;
@@ -33,7 +33,7 @@ pub trait BehaviorModuleTrait: PortMethods + Default {
 
 /// Inner structure of a behavior scheduling.
 /// Used by the [`BehaviorModuleTrait`] to create a behavior scheduling.
-#[derive(PortMethods, Default, Deref, DerefMut)]
+#[derive(PortMethods, Default, Deref, DerefMut, IB2CMetaSignals)]
 pub struct BehaviorModule<M: BehaviorModuleTrait> {
     #[deref] #[deref_mut]
     inner: M,
@@ -70,20 +70,5 @@ impl<M: BehaviorModuleTrait> BehaviorModule<M> {
             activity: SendPort::new(MetaSignal::LOW),
             target_rating: SendPort::new(MetaSignal::LOW),
         }
-    }
-}
-
-impl<M: BehaviorModuleTrait> IB2CMetaSignals for BehaviorModule<M> {
-    fn stimulation(&mut self) -> &mut ReceivePort<MetaSignal> {
-        &mut self.stimulation
-    }
-    fn inhibition(&mut self) -> &mut ReceivePort<MetaSignal> {
-        &mut self.inhibition
-    }
-    fn activity(&mut self) -> &mut SendPort<MetaSignal> {
-        &mut self.activity
-    }
-    fn target_rating(&mut self) -> &mut SendPort<MetaSignal> {
-        &mut self.target_rating
     }
 }

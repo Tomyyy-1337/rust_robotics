@@ -5,10 +5,11 @@ use meta_signals::MetaSignal;
 use ib2c::modules;
 use ib2c::modules::basic_group::BasicGroupTrait;
 use ib2c::modules::basic_module::{BasicModule, BasicModuleTrait};
+use ib2c::modules::behavior_group::{BehaviorGroup, BehaviorGroupTrait};
 use ib2c::modules::behavior_module::BehaviorModule;
 use ib2c::modules::general_fusion::GeneralFusionTrait;
 use ib2c::modules::maximum_fusion::MaximumFusion;
-use scheduling::{GroupBuilder, ModuleBuilder, SpawnMode};
+use scheduling::{spawns, GroupBuilder, ModuleBuilder, SpawnMode};
 use modules::behavior_module::BehaviorModuleTrait;
 use ports::prelude::*;
 
@@ -25,6 +26,7 @@ struct TestGroup {
 }
 
 impl BasicGroupTrait for TestGroup {
+    #[spawns]
     fn init(&mut self, builder: &mut GroupBuilder) {
         let module_1 = ModuleBuilder::new(
             TestModule::new(),
@@ -54,14 +56,8 @@ impl BasicGroupTrait for TestGroup {
 
         let expensive_modules = GroupBuilder::new(
             TenModulesGroup::new(),
-            SpawnMode::GroupThread
+            SpawnMode::NewThread
         );
-
-        builder.add_module(module_1);
-        builder.add_module(module_2);
-        builder.add_module(maximum_fusion);
-        builder.add_module(print_module);
-        builder.add_group(expensive_modules);
     }
 }
 
@@ -70,15 +66,15 @@ struct TenModulesGroup {
     pub in_data: ReceivePort<i32>,
 }
 
-impl BasicGroupTrait for TenModulesGroup {
-    fn init(&mut self, builder: &mut GroupBuilder) {
+impl BehaviorGroupTrait for TenModulesGroup {
+    #[spawns]
+    fn init(group: &mut BehaviorGroup<Self>, builder: &mut GroupBuilder) {
         for _ in 0..10 {
             let module = ModuleBuilder::new(
                 FibModule::new(),
                 Duration::from_millis(100),
-                SpawnMode::NewThread
+                SpawnMode::GroupThread
             );
-            builder.add_module(module);
         }
     }
 }

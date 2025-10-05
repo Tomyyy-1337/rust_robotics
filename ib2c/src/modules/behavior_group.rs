@@ -1,4 +1,5 @@
 use derive_more::{Deref, DerefMut};
+use ib2c_macros::IB2CMetaSignals;
 use meta_signals::MetaSignal;
 use ports::prelude::{ReceivePort, SendPort};
 use scheduling::{Group, GroupBuilder};
@@ -12,7 +13,7 @@ pub trait BehaviorGroupTrait: Default {
     }
 }
 
-#[derive(Deref, DerefMut)]
+#[derive(Deref, DerefMut, IB2CMetaSignals)]
 pub struct BehaviorGroup<G: BehaviorGroupTrait> {
     #[deref] #[deref_mut]
     inner: G,
@@ -48,17 +49,17 @@ impl<G: BehaviorGroupTrait> BehaviorGroup<G> {
     }
 }
 
-impl<G: BehaviorGroupTrait> IB2CMetaSignals for BehaviorGroup<G> {
-    fn stimulation(&mut self) -> &mut ReceivePort<MetaSignal> {
-        &mut self.stimulation
-    }
-    fn inhibition(&mut self) -> &mut ReceivePort<MetaSignal> {
-        &mut self.inhibition
-    }
-    fn activity(&mut self) -> &mut SendPort<MetaSignal> {
-        &mut self.activity
-    }
-    fn target_rating(&mut self) -> &mut SendPort<MetaSignal> {
-        &mut self.target_rating
-    }
-}
+// impl<G: BehaviorGroupTrait> IB2CMetaSignals for BehaviorGroup<G> {
+//     fn stimulation(&mut self) -> &mut ReceivePort<MetaSignal> {
+//         &mut self.stimulation
+//     }
+//     fn inhibition(&mut self) -> &mut ReceivePort<MetaSignal> {
+//         &mut self.inhibition
+//     }
+//     fn activity(&mut self) -> &mut SendPort<MetaSignal> {
+//         &mut self.activity
+//     }
+//     fn target_rating(&mut self) -> &mut SendPort<MetaSignal> {
+//         &mut self.target_rating
+//     }
+// }
