@@ -4,7 +4,7 @@ use derive_more::{Deref, DerefMut};
 use scheduling::{ModuleBuilder, Module, SpawnMode};
 use ports::prelude::*;
 use meta_signals::MetaSignal;
-use crate::meta_signal_traits::IB2CMetaSignals;
+use crate::ib2c_meta_signals::IB2CMetaSignals;
 
 /// An IB2C behavior scheduling with stimulation, inhibition, activity and target_rating ports.
 /// The transfer and target_rating functions are called periodically. Transfer will always be called before target_rating.

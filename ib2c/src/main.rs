@@ -12,12 +12,11 @@ use scheduling::{GroupBuilder, ModuleBuilder, SpawnMode};
 use modules::behavior_module::BehaviorModuleTrait;
 use ports::prelude::*;
 
-
 fn main() {
     let group = GroupBuilder::new(TestGroup::new(), SpawnMode::NewThread);
     group.spawn();
 
-    park()
+    loop { park() }
 }
 
 #[derive(Default)]
@@ -77,7 +76,7 @@ impl BasicGroupTrait for TenModulesGroup {
             let module = ModuleBuilder::new(
                 FibModule::new(),
                 Duration::from_millis(100),
-                SpawnMode::GroupThread
+                SpawnMode::NewThread
             );
             builder.add_module(module);
         }

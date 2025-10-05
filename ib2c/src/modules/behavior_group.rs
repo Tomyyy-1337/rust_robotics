@@ -2,7 +2,7 @@ use derive_more::{Deref, DerefMut};
 use meta_signals::MetaSignal;
 use ports::prelude::{ReceivePort, SendPort};
 use scheduling::{Group, GroupBuilder};
-use crate::meta_signal_traits::IB2CMetaSignals;
+use crate::ib2c_meta_signals::IB2CMetaSignals;
 
 pub trait BehaviorGroupTrait: Default {
     fn init(group: &mut BehaviorGroup<Self>, builder: &mut GroupBuilder);

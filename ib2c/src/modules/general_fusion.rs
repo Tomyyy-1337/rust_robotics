@@ -3,7 +3,7 @@ use derive_more::{Deref, DerefMut};
 use scheduling::{Module, ModuleBuilder, SpawnMode};
 use ports::prelude::*;
 use meta_signals::MetaSignal;
-use crate::meta_signal_traits::IB2CMetaSignals;
+use crate::ib2c_meta_signals::IB2CMetaSignals;
 use crate::modules::behavior_module::{BehaviorModule, BehaviorModuleTrait};
 
 /// A general fusion scheduling that can fuse multiple data inputs based on their activity levels.

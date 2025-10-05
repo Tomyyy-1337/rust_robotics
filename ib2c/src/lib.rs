@@ -1,2 +1,2 @@
 pub mod modules;
-mod meta_signal_traits;
+mod ib2c_meta_signals;
