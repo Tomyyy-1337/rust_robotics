@@ -1,6 +1,6 @@
 use std::time::Duration;
 use derive_more::with_trait::{Deref, DerefMut};
-use crate::{SpawnMode, ThreadContainer};
+use crate::spawn_mode::SpawnMode;
 
 /// A scheduling that can be added to a `ThreadContainer`.
 /// The scheduling must implement the `update` method, which will be called

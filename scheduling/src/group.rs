@@ -1,10 +1,10 @@
 use std::time::Duration;
+use derive_more::{Deref, DerefMut};
 use crate::{Module, ModuleBuilder, ThreadContainer};
+use crate::spawn_mode::SpawnMode;
 
-#[derive(Copy, Clone)]
-pub enum SpawnMode {
-    GroupThread,
-    NewThread
+pub trait Group {
+    fn init(&mut self, group: &mut GroupBuilder);
 }
 
 struct ModuleData {
@@ -28,15 +28,39 @@ pub struct GroupBuilder {
     children: GroupChildren,
 }
 
+#[derive(Deref, DerefMut)]
+pub struct GroupConnector<G: Group> {
+    #[deref] #[deref_mut]
+    inner: G,
+
+    builder: GroupBuilder,
+}
+
 impl GroupBuilder {
-    pub fn new(spawn_mode: SpawnMode) -> Self {
+    pub fn empty() -> Self {
         Self {
+            spawn_mode: SpawnMode::NewThread,
+            children: GroupChildren {
+                modules: Vec::new(),
+                groups: Vec::new(),
+            }
+        }
+    }
+
+    pub fn new<G: Group>(mut group: G, spawn_mode: SpawnMode) -> GroupConnector<G> {
+        let mut builder = Self {
             spawn_mode,
             children: GroupChildren {
                 modules: Vec::new(),
                 groups: Vec::new(),
-            },
+            }
+        };
+        group.init(&mut builder);
+        GroupConnector {
+            inner: group,
+            builder,
         }
+        
     }
 
     pub fn add_module<M: Module + Send + 'static>(&mut self, builder: ModuleBuilder<M>) {
@@ -47,7 +71,11 @@ impl GroupBuilder {
         });
     }
 
-    pub fn add_group(&mut self, group: GroupBuilder) {
+    pub fn add_group<G>(&mut self, group: G) 
+    where 
+        G: Into<GroupBuilder>
+    {
+        let group = group.into();
         self.children.groups.push(GroupData {
             group: group.children,
             spawn_mode: group.spawn_mode
@@ -81,5 +109,25 @@ impl GroupBuilder {
                 }
             }
         }
+    }
+}
+
+impl<G: Group> GroupConnector<G> {
+    pub fn add_module<M: Module + Send + 'static>(&mut self, builder: ModuleBuilder<M>) {
+        self.builder.add_module(builder);
+    }
+
+    pub fn add_group(&mut self, group: GroupBuilder) {
+        self.builder.add_group(group);
+    }
+
+    pub fn spawn(self) {
+        self.builder.spawn()
+    }
+}
+
+impl<G: Group> Into<GroupBuilder> for GroupConnector<G> {
+    fn into(self) -> GroupBuilder {
+        self.builder
     }
 }

@@ -12,29 +12,51 @@ use scheduling::{GroupBuilder, ModuleBuilder, SpawnMode};
 use modules::behavior_module::BehaviorModuleTrait;
 use ports::prelude::*;
 
+
 fn main() {
-    let group = TestGroup::new(SpawnMode::GroupThread);
+    let group = GroupBuilder::new(TestGroup::new(), SpawnMode::NewThread);
     group.spawn();
 
     park()
 }
 
 #[derive(Default)]
-struct TestGroup {}
+struct TestGroup {
+    pub out_data: SendPort<i32>,
+}
 
 impl BasicGroupTrait for TestGroup {
     fn init(&mut self, builder: &mut GroupBuilder) {
-        let module_1 = ModuleBuilder::new(TestModule::new(), Duration::from_millis(700), SpawnMode::GroupThread);
-        let module_2 = ModuleBuilder::new(Oscillator::new(), Duration::from_millis(500), SpawnMode::GroupThread);
+        let module_1 = ModuleBuilder::new(
+            TestModule::new(),
+            Duration::from_millis(700),
+            SpawnMode::GroupThread
+        );
+        let module_2 = ModuleBuilder::new(
+            Oscillator::new(),
+            Duration::from_millis(500),
+            SpawnMode::GroupThread
+        );
 
-        let mut maximum_fusion = ModuleBuilder::new(MaximumFusion::new(), Duration::from_millis(10), SpawnMode::GroupThread);
+        let mut maximum_fusion = ModuleBuilder::new(
+            MaximumFusion::new(),
+            Duration::from_millis(10),
+            SpawnMode::GroupThread
+        );
         maximum_fusion.add_module(&module_2.out_data, &module_2.activity);
         maximum_fusion.add_module(&module_1.out_data, &module_1.activity);
 
-        let print_module = ModuleBuilder::new(PrintModule::new(), Duration::from_millis(300), SpawnMode::GroupThread);
+        let print_module = ModuleBuilder::new(
+            PrintModule::new(),
+            Duration::from_millis(300),
+            SpawnMode::GroupThread
+        );
         print_module.in_data.connect_to_source(&maximum_fusion.output_port);
 
-        let expensive_modules = TenModulesGroup::new(SpawnMode::NewThread);
+        let expensive_modules = GroupBuilder::new(
+            TenModulesGroup::new(),
+            SpawnMode::GroupThread
+        );
 
         builder.add_module(module_1);
         builder.add_module(module_2);
@@ -45,17 +67,22 @@ impl BasicGroupTrait for TestGroup {
 }
 
 #[derive(Default)]
-struct TenModulesGroup {}
+struct TenModulesGroup {
+    pub in_data: ReceivePort<i32>,
+}
 
 impl BasicGroupTrait for TenModulesGroup {
     fn init(&mut self, builder: &mut GroupBuilder) {
         for _ in 0..10 {
-            let module = ModuleBuilder::new(FibModule::new(), Duration::from_millis(100), SpawnMode::GroupThread);
+            let module = ModuleBuilder::new(
+                FibModule::new(),
+                Duration::from_millis(100),
+                SpawnMode::GroupThread
+            );
             builder.add_module(module);
         }
     }
 }
-
 
 #[derive(PortMethods, Default)]
 struct TestModule {
@@ -132,15 +159,16 @@ struct FibModule {
 impl BasicModuleTrait for FibModule {
     fn init() -> Self {
         FibModule {
-            param: 0,
+            param: 42,
             ..Self::default()
         }
     }
 
     fn update(module: &mut BasicModule<Self>) {
-        module.param += 1;
+        // module.param += 1;
         let fib = FibModule::fib(module.param);
         module.out_result.send(fib);
+        println!("Calculated Fib");
     }
 }
 

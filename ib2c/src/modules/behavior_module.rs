@@ -4,6 +4,7 @@ use derive_more::{Deref, DerefMut};
 use scheduling::{ModuleBuilder, Module, SpawnMode};
 use ports::prelude::*;
 use meta_signals::MetaSignal;
+use crate::meta_signal_traits::IB2CMetaSignals;
 
 /// An IB2C behavior scheduling with stimulation, inhibition, activity and target_rating ports.
 /// The transfer and target_rating functions are called periodically. Transfer will always be called before target_rating.
@@ -69,5 +70,20 @@ impl<M: BehaviorModuleTrait> BehaviorModule<M> {
             activity: SendPort::new(MetaSignal::LOW),
             target_rating: SendPort::new(MetaSignal::LOW),
         }
+    }
+}
+
+impl<M: BehaviorModuleTrait> IB2CMetaSignals for BehaviorModule<M> {
+    fn stimulation(&mut self) -> &mut ReceivePort<MetaSignal> {
+        &mut self.stimulation
+    }
+    fn inhibition(&mut self) -> &mut ReceivePort<MetaSignal> {
+        &mut self.inhibition
+    }
+    fn activity(&mut self) -> &mut SendPort<MetaSignal> {
+        &mut self.activity
+    }
+    fn target_rating(&mut self) -> &mut SendPort<MetaSignal> {
+        &mut self.target_rating
     }
 }
